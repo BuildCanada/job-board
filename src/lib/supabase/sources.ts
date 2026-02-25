@@ -14,7 +14,7 @@ export type SourceInsert = Omit<Source, 'id' | 'created_at' | 'updated_at'>
 
 export async function createSource(data: SourceInsert): Promise<Source> {
   const { data: source, error } = await supabaseService
-    .from('sources')
+    .from('job_board.sources')
     .insert(data)
     .select()
     .single()
@@ -25,7 +25,7 @@ export async function createSource(data: SourceInsert): Promise<Source> {
 
 export async function getSources(limit: number = 50, offset: number = 0): Promise<Source[]> {
   const { data, error } = await supabase
-    .from('sources')
+    .from('job_board.sources')
     .select('*')
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
@@ -36,7 +36,7 @@ export async function getSources(limit: number = 50, offset: number = 0): Promis
 
 export async function getSourceById(id: string): Promise<Source | null> {
   const { data, error } = await supabase
-    .from('sources')
+    .from('job_board.sources')
     .select()
     .eq('id', id)
     .single()
@@ -48,7 +48,7 @@ export async function getSourceById(id: string): Promise<Source | null> {
 
 export async function deleteSource(id: string): Promise<void> {
   const { error } = await supabaseService
-    .from('sources')
+    .from('job_board.sources')
     .delete()
     .eq('id', id)
 

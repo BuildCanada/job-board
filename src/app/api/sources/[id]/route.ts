@@ -8,14 +8,15 @@ function isValidUUID(id: string): boolean {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!isValidUUID(params.id)) {
+  const { id } = await params
+  if (!isValidUUID(id)) {
     return NextResponse.json({ error: 'Invalid ID format' }, { status: 400 })
   }
 
   try {
-    const source = await getSourceById(params.id)
+    const source = await getSourceById(id)
 
     if (!source) {
       return NextResponse.json({ error: 'Source not found' }, { status: 404 })
@@ -30,20 +31,21 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!isValidUUID(params.id)) {
+  const { id } = await params
+  if (!isValidUUID(id)) {
     return NextResponse.json({ error: 'Invalid ID format' }, { status: 400 })
   }
 
   try {
-    const source = await getSourceById(params.id)
+    const source = await getSourceById(id)
 
     if (!source) {
       return NextResponse.json({ error: 'Source not found' }, { status: 404 })
     }
 
-    await deleteSource(params.id)
+    await deleteSource(id)
     return new NextResponse(null, { status: 204 })
   } catch (error: unknown) {
     console.error('Failed to delete source:', error)

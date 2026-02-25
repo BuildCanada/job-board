@@ -9,14 +9,15 @@ function isValidUUID(id: string): boolean {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!isValidUUID(params.id)) {
+  const { id } = await params
+  if (!isValidUUID(id)) {
     return NextResponse.json({ error: 'Invalid ID format' }, { status: 400 })
   }
 
   try {
-    const source = await getSourceById(params.id)
+    const source = await getSourceById(id)
 
     if (!source) {
       return NextResponse.json({ error: 'Source not found' }, { status: 404 })
@@ -26,7 +27,7 @@ export async function POST(
       return NextResponse.json({ error: 'Source has no portfolio_url' }, { status: 400 })
     }
 
-    await queuePortfolioScan(params.id, source.portfolio_url)
+    await queuePortfolioScan(id, source.portfolio_url)
     return NextResponse.json({ message: 'Portfolio scan queued' })
   } catch (error: unknown) {
     console.error('Failed to queue scan:', error)

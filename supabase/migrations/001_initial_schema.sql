@@ -1,10 +1,13 @@
 -- Enable required extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pg_cron";
 
 -- Create schemas
-CREATE SCHEMA IF NOT EXISTS public;
+CREATE SCHEMA IF NOT EXISTS job_board;
 CREATE SCHEMA IF NOT EXISTS job_board_private;
+
+-- Grant permissions on schemas
+GRANT ALL ON SCHEMA job_board TO project_job_board;
+GRANT ALL ON SCHEMA job_board_private TO project_job_board;
 
 -- Create enums
 DO $$ BEGIN
@@ -25,19 +28,25 @@ EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
--- Create sources table (public schema)
-CREATE TABLE IF NOT EXISTS public.sources (
+DO $$ BEGIN
+    CREATE TYPE task_status AS ENUM ('pending', 'processing', 'completed', 'failed');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+-- Create sources table (job_board schema)
+CREATE TABLE IF NOT EXISTS job_board.sources (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     name text NOT NULL,
     description text,
     website text,
-    portfolio_url text,
+    portfolio_url text UNIQUE,
     created_at timestamptz DEFAULT now(),
     updated_at timestamptz DEFAULT now()
 );
 
--- Create organizations table (public schema)
-CREATE TABLE IF NOT EXISTS public.organizations (
+-- Create organizations table (job_board schema)
+CREATE TABLE IF NOT EXISTS job_board.organizations (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     name text NOT NULL,
     city text,
@@ -52,10 +61,10 @@ CREATE TABLE IF NOT EXISTS public.organizations (
     updated_at timestamptz DEFAULT now()
 );
 
--- Create jobs table (public schema)
-CREATE TABLE IF NOT EXISTS public.jobs (
+-- Create jobs table (job_board schema)
+CREATE TABLE IF NOT EXISTS job_board.jobs (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    organization_id uuid REFERENCES public.organizations(id) ON DELETE SET NULL,
+    organization_id uuid REFERENCES job_board.organizations(id) ON DELETE SET NULL,
     title text NOT NULL,
     city text,
     province text,
@@ -63,7 +72,7 @@ CREATE TABLE IF NOT EXISTS public.jobs (
     salary_min integer,
     salary_max integer,
     description text,
-    posting_url text NOT NULL,
+    posting_url text NOT NULL UNIQUE,
     last_checked_at timestamptz,
     status job_status DEFAULT 'active',
     created_at timestamptz DEFAULT now(),
@@ -76,7 +85,7 @@ CREATE TABLE IF NOT EXISTS job_board_private.scan_tasks (
     task_type task_type NOT NULL,
     target_id uuid,
     payload jsonb,
-    status text DEFAULT 'pending',
+    status task_status NOT NULL DEFAULT 'pending',
     retry_count integer DEFAULT 0,
     max_retries integer DEFAULT 3,
     scheduled_at timestamptz DEFAULT now(),
@@ -85,8 +94,11 @@ CREATE TABLE IF NOT EXISTS job_board_private.scan_tasks (
 );
 
 -- Create indexes
-CREATE INDEX IF NOT EXISTS idx_organizations_canadian_status ON public.organizations(canadian_status);
-CREATE INDEX IF NOT EXISTS idx_jobs_status ON public.jobs(status);
-CREATE INDEX IF NOT EXISTS idx_jobs_organization_id ON public.jobs(organization_id);
+CREATE INDEX IF NOT EXISTS idx_organizations_canadian_status ON job_board.organizations(canadian_status);
+CREATE INDEX IF NOT EXISTS idx_organizations_updated_at ON job_board.organizations(updated_at);
+CREATE INDEX IF NOT EXISTS idx_jobs_status ON job_board.jobs(status);
+CREATE INDEX IF NOT EXISTS idx_jobs_organization_id ON job_board.jobs(organization_id);
+CREATE INDEX IF NOT EXISTS idx_jobs_updated_at ON job_board.jobs(updated_at);
 CREATE INDEX IF NOT EXISTS idx_scan_tasks_status ON job_board_private.scan_tasks(status);
 CREATE INDEX IF NOT EXISTS idx_scan_tasks_scheduled_at ON job_board_private.scan_tasks(scheduled_at);
+CREATE INDEX IF NOT EXISTS idx_scan_tasks_updated_at ON job_board_private.scan_tasks(updated_at);

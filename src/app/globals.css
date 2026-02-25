@@ -1,26 +1,71 @@
 @import "tailwindcss";
+@import "../styles/main.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@font-face {
+    font-family: "Söhne Kraftig";
+    src: url("/soehne-kraftig.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Financier Text";
+    src: url("/financier-text-regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Founder's Grotesk Mono";
+    src: url("/founders-grotesk-mono-regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
 
 :root {
-	--background: #ffffff;
-	--foreground: #171717;
+    --font-sans: "Financier Text", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Söhne Kraftig", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "Founder's Grotesk Mono", ui-monospace, monospace;
 }
 
 @theme inline {
-	--color-background: var(--background);
-	--color-foreground: var(--foreground);
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
+    /* Fonts */
+    --font-family-sans: var(--font-sans);
+    --font-family-display: var(--font-display);
+    --font-family-mono: var(--font-mono);
+
+    /* Border Radius */
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-	:root {
-		--background: #0a0a0a;
-		--foreground: #ededed;
-	}
-}
-
-body {
-	background: var(--background);
-	color: var(--foreground);
-	font-family: Arial, Helvetica, sans-serif;
+@layer base {
+    * {
+        @apply border-border focus:outline-ring/50 hover:outline-none;
+    }
+    body {
+        @apply bg-background text-foreground;
+        font-family: var(--font-sans);
+    }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: var(--font-display);
+    }
+    code,
+    pre,
+    kbd,
+    samp {
+        font-family: var(--font-mono);
+    }
 }

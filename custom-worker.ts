@@ -1,4 +1,5 @@
 import handler from "./.open-next/worker.js";
+import { processTasks } from "./src/lib/workers/task-processor";
 
 export default {
   fetch: handler.fetch,
@@ -27,6 +28,14 @@ export default {
         console.log(
           `Hourly job triggered at ${new Date(controller.scheduledTime).toISOString()}`
         );
+        
+        try {
+          const processed = await processTasks(10);
+          console.log(`Processed ${processed} tasks`);
+        } catch (error) {
+          console.error("Task processing failed:", error);
+        }
+        
         break;
       default:
         console.log(`Unrecognized cron pattern: ${controller.cron}`);
