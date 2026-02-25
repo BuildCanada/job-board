@@ -1,22 +1,20 @@
-import { createClient } from '@supabase/supabase-js'
+import { Pool } from "pg"
+import { Kysely, PostgresDialect } from "kysely"
+import type { Database } from "./schema"
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-const supabaseServiceUrl = process.env.SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY
+// Database connection pool
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+})
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase client environment variables')
+// kysely instance
+export const db = new Kysely<Database>({
+  dialect: new PostgresDialect({
+    pool,
+  }),
+})
+
+// Graceful shutdown
+export async function closeDatabase(): Promise<void> {
+  await pool.end()
 }
-
-if (!supabaseServiceUrl || !supabaseServiceKey) {
-  throw new Error('Missing Supabase service environment variables')
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-// For privileged operations (use in server components/API routes only)
-export const supabaseService = createClient(
-  supabaseServiceUrl,
-  supabaseServiceKey
-)
