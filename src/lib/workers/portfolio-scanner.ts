@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio'
-import { createOrganization, getOrganizationByWebsite } from '@/lib/supabase/organizations'
-import { queueOrganizationScan } from '@/lib/supabase/tasks'
+import { createOrganization, getOrganizationByWebsite } from '@/lib/postgres/organizations'
+import { queueOrganizationScan } from '@/lib/postgres/tasks'
 
 function isValidUrl(url: string): boolean {
   try {

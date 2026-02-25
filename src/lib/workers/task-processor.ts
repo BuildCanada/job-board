@@ -1,4 +1,4 @@
-import { getPendingTasks, updateTaskStatus, TaskType, Task } from '@/lib/supabase/tasks'
+import { getPendingTasks, updateTaskStatus, TaskType, Task } from '@/lib/postgres/tasks'
 import { scanPortfolio } from './portfolio-scanner'
 
 export async function processTasks(limit: number = 10): Promise<number> {

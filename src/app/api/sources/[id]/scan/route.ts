@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSourceById } from '@/lib/supabase/sources'
-import { queuePortfolioScan } from '@/lib/supabase/tasks'
+import { getSourceById } from '@/lib/postgres/sources'
+import { queuePortfolioScan } from '@/lib/postgres/tasks'
 
 function isValidUUID(id: string): boolean {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i

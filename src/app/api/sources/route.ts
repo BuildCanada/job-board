@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createSource, getSources } from '@/lib/supabase/sources'
+import { createSource, getSources } from '@/lib/postgres/sources'
 import { z } from 'zod'
 
 const schema = z.object({
