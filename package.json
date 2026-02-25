@@ -16,7 +16,9 @@
 		"@opennextjs/cloudflare": "^1.15.1",
 		"@supabase/supabase-js": "^2.97.0",
 		"cheerio": "^1.2.0",
+		"kysely": "^0.28.11",
 		"next": "16.1.5",
+		"pg": "^8.19.0",
 		"react": "19.1.5",
 		"react-dom": "19.1.5",
 		"zod": "^4.3.6"
@@ -26,6 +28,7 @@
 		"@tailwindcss/postcss": "^4",
 		"@types/cheerio": "^1.0.0",
 		"@types/node": "^20",
+		"@types/pg": "^8.16.0",
 		"@types/react": "^19.1.5",
 		"@types/react-dom": "^19.1.5",
 		"eslint": "^9",
