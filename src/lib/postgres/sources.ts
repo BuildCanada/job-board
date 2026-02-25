@@ -1,56 +1,49 @@
-import { supabase, supabaseService } from './client'
+import { db } from './client'
+import type { Database } from './schema'
+import type { Insertable } from 'kysely'
 
-export type Source = {
-  id: string
-  name: string
-  description: string | null
-  website: string | null
-  portfolio_url: string | null
-  created_at: string
-  updated_at: string
-}
+export type Source = Database['job_board']
+export type SourceInsert = Insertable<Database['job_board']>
 
-export type SourceInsert = Omit<Source, 'id' | 'created_at' | 'updated_at'>
+export async function createSource(data: Omit<SourceInsert, 'created_at' | 'updated_at'>): Promise<Source> {
+  const result = await db
+    .insertInto('job_board')
+    .values({
+      ...data,
+      created_at: new Date(),
+      updated_at: new Date(),
+    })
+    .returningAll()
+    .executeTakeFirstOrThrow()
 
-export async function createSource(data: SourceInsert): Promise<Source> {
-  const { data: source, error } = await supabaseService
-    .from('job_board.sources')
-    .insert(data)
-    .select()
-    .single()
-
-  if (error) throw error
-  return source
+  return result
 }
 
 export async function getSources(limit: number = 50, offset: number = 0): Promise<Source[]> {
-  const { data, error } = await supabase
-    .from('job_board.sources')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .range(offset, offset + limit - 1)
+  const result = await db
+    .selectFrom('job_board')
+    .selectAll()
+    .orderBy('created_at', 'desc')
+    .limit(limit)
+    .offset(offset)
+    .execute()
 
-  if (error) throw error
-  return data || []
+  return result
 }
 
 export async function getSourceById(id: string): Promise<Source | null> {
-  const { data, error } = await supabase
-    .from('job_board.sources')
-    .select()
-    .eq('id', id)
-    .single()
+  const result = await db
+    .selectFrom('job_board')
+    .selectAll()
+    .where('id', '=', id)
+    .executeTakeFirst()
 
-  if (error?.code === 'PGRST116') return null // Not found
-  if (error) throw error
-  return data
+  return result ?? null
 }
 
 export async function deleteSource(id: string): Promise<void> {
-  const { error } = await supabaseService
-    .from('job_board.sources')
-    .delete()
-    .eq('id', id)
-
-  if (error) throw error
+  await db
+    .deleteFrom('job_board')
+    .where('id', '=', id)
+    .execute()
 }
