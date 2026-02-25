@@ -1,47 +1,97 @@
-# OpenNext Starter
+# Build Canada Job Board
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Canadian startup jobs directory - job listings from Canadian-owned companies.
+
+## Overview
+
+Track sources of capital (VCs, accelerators, family offices) → scan their portfolio companies → validate Canadian companies → discover job postings.
+
+## Features
+
+### Sources
+- CRUD API for capital sources
+- Portfolio scanning triggers
+- Organizations discovered from portfolio pages
+
+### Organizations
+- Canadian address validation (4 states: unscanned, canadian, not_canadian, no_address)
+- Careers page discovery
+- Organization scan triggers
+
+### Jobs
+- Job posting tracking
+- Weekly heartbeat to verify posting URLs are live
+- Auto-archive dead listings
+
+### Backend
+- Cloudflare Workers cron jobs for task processing
+- Type-safe PostgreSQL queries with kysely
+- Task queue system for async operations
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router)
+- **Language**: TypeScript (strict)
+- **Database**: PostgreSQL with kysely (type-safe queries)
+- **Deployment**: Cloudflare Pages via OpenNext
+- **Runtime**: Cloudflare Workers
 
 ## Getting Started
 
-Read the documentation at https://opennext.js.org/cloudflare.
-
-## Develop
-
-Run the Next.js development server:
+### Prerequisites
 
 ```bash
-npm run dev
-# or similar package manager command
+# Install dependencies
+bun install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create `.env.local`:
+```
+DATABASE_URL=postgresql://...
+CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=postgresql://...
+```
 
-## Preview
-
-Preview the application locally on the Cloudflare runtime:
+### Development
 
 ```bash
-npm run preview
-# or similar package manager command
+bun run dev    # Start dev server (http://localhost:3000)
+bun run test    # Run tests
+bun run lint    # Run ESLint
+bun run build  # Production build
 ```
 
-## Deploy
-
-Deploy the application to Cloudflare:
+### Deployment
 
 ```bash
-npm run deploy
-# or similar package manager command
+bun run deploy  # Build and deploy to Cloudflare Pages
 ```
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├── app/
+│   └── api/
+│       └── sources/         # CRUD API
+│           ├── route.ts      # List/create sources
+│           └── [id]/
+│               ├── route.ts   # Get/delete by ID
+│               └── scan/route.ts  # Trigger portfolio scan
+├── lib/
+│   ├── postgres/           # PostgreSQL operations
+│   │   ├── schema.ts       # Type-safe DB definitions
+│   │   ├── client.ts       # kysely database client
+│   │   ├── sources.ts      # Sources CRUD
+│   │   ├── organizations.ts # Organizations DB ops
+│   │   └── tasks.ts        # Task queue operations
+│   └── workers/            # Background workers
+│       ├── portfolio-scanner.ts  # Portfolio page scanner
+│       └── task-processor.ts     # Task queue consumer
+└── styles/                   # Design tokens/themes
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+See [AGENTS.md](./AGENTS.md) for detailed conventions and commands.
