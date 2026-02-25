@@ -1,14 +1,13 @@
 import { db } from './client'
 import type { Database } from './schema'
 
-export type Organization = Database['job_board_organizations']['Insert']['id'] extends `${infer R}`
-  ? Omit<Database['job_board_organizations']['Insert'], 'id'>
-  : never
+export type Organization = Database['job_board_organizations']
 
 export async function createOrganization(data: Omit<Organization, 'id' | 'created_at' | 'updated_at'>): Promise<Organization> {
   const result = await db
     .insertInto('job_board_organizations')
     .values({
+      id: crypto.randomUUID(),
       ...data,
       created_at: new Date(),
       updated_at: new Date(),

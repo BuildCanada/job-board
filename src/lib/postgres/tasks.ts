@@ -17,10 +17,13 @@ export async function queuePortfolioScan(sourceId: string, portfolioUrl: string)
   await db
     .insertInto('job_board_private_scan_tasks')
     .values({
+      id: crypto.randomUUID(),
       task_type: 'source_portfolio',
       target_id: sourceId,
       payload: { portfolio_url: portfolioUrl },
       status: 'pending',
+      retry_count: 0,
+      max_retries: 3,
       scheduled_at: new Date(),
       created_at: new Date(),
       updated_at: new Date(),
@@ -32,10 +35,13 @@ export async function queueOrganizationScan(organizationId: string, website: str
   await db
     .insertInto('job_board_private_scan_tasks')
     .values({
+      id: crypto.randomUUID(),
       task_type: 'organization_scan',
       target_id: organizationId,
       payload: { website },
       status: 'pending',
+      retry_count: 0,
+      max_retries: 3,
       scheduled_at: new Date(),
       created_at: new Date(),
       updated_at: new Date(),
@@ -47,10 +53,13 @@ export async function queueJobHeartbeat(jobId: string, postingUrl: string): Prom
   await db
     .insertInto('job_board_private_scan_tasks')
     .values({
+      id: crypto.randomUUID(),
       task_type: 'job_heartbeat',
       target_id: jobId,
       payload: { posting_url: postingUrl },
       status: 'pending',
+      retry_count: 0,
+      max_retries: 3,
       scheduled_at: new Date(),
       created_at: new Date(),
       updated_at: new Date(),
@@ -68,7 +77,7 @@ export async function getPendingTasks(limit: number = 10): Promise<Task[]> {
     .limit(limit)
     .execute()
 
-  return result.rows as unknown as Task[]
+  return result as unknown as Task[]
 }
 
 export async function updateTaskStatus(taskId: string, status: 'processing' | 'completed' | 'failed', error?: string): Promise<void> {

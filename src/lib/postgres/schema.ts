@@ -1,8 +1,10 @@
-import { ColumnType, Generated, GeneratedAlways } from 'kysely'
+import { sql } from 'kysely'
+
+export type UUID = string
 
 export interface Database {
-  job_board: {
-    id: Generated<UUID>
+  job_board_sources: {
+    id: UUID
     name: string
     description: string | null
     website: string | null
@@ -11,7 +13,7 @@ export interface Database {
     updated_at: Date
   }
   job_board_organizations: {
-    id: Generated<UUID>
+    id: UUID
     name: string
     city: string | null
     province: string | null
@@ -25,7 +27,7 @@ export interface Database {
     updated_at: Date
   }
   job_board_jobs: {
-    id: Generated<UUID>
+    id: UUID
     organization_id: string | null
     title: string
     city: string | null
@@ -41,7 +43,7 @@ export interface Database {
     updated_at: Date
   }
   job_board_private_scan_tasks: {
-    id: Generated<UUID>
+    id: UUID
     task_type: 'source_portfolio' | 'organization_scan' | 'job_heartbeat'
     target_id: string | null
     payload: any
