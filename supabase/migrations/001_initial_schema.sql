@@ -35,7 +35,7 @@ EXCEPTION
 END $$;
 
 -- Create sources table (job_board schema)
-CREATE TABLE IF NOT EXISTS job_board.sources (
+CREATE TABLE IF NOT EXISTS job_board_sources (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     name text NOT NULL,
     description text,
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS job_board.sources (
 );
 
 -- Create organizations table (job_board schema)
-CREATE TABLE IF NOT EXISTS job_board.organizations (
+CREATE TABLE IF NOT EXISTS job_board_organizations (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     name text NOT NULL,
     city text,
@@ -62,9 +62,9 @@ CREATE TABLE IF NOT EXISTS job_board.organizations (
 );
 
 -- Create jobs table (job_board schema)
-CREATE TABLE IF NOT EXISTS job_board.jobs (
+CREATE TABLE IF NOT EXISTS job_board_jobs (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    organization_id uuid REFERENCES job_board.organizations(id) ON DELETE SET NULL,
+    organization_id uuid REFERENCES job_board_organizations(id) ON DELETE SET NULL,
     title text NOT NULL,
     city text,
     province text,
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS job_board.jobs (
 );
 
 -- Create scan_tasks table (job_board_private schema)
-CREATE TABLE IF NOT EXISTS job_board_private.scan_tasks (
+CREATE TABLE IF NOT EXISTS job_board_private_scan_tasks (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     task_type task_type NOT NULL,
     target_id uuid,
@@ -94,11 +94,11 @@ CREATE TABLE IF NOT EXISTS job_board_private.scan_tasks (
 );
 
 -- Create indexes
-CREATE INDEX IF NOT EXISTS idx_organizations_canadian_status ON job_board.organizations(canadian_status);
-CREATE INDEX IF NOT EXISTS idx_organizations_updated_at ON job_board.organizations(updated_at);
-CREATE INDEX IF NOT EXISTS idx_jobs_status ON job_board.jobs(status);
-CREATE INDEX IF NOT EXISTS idx_jobs_organization_id ON job_board.jobs(organization_id);
-CREATE INDEX IF NOT EXISTS idx_jobs_updated_at ON job_board.jobs(updated_at);
-CREATE INDEX IF NOT EXISTS idx_scan_tasks_status ON job_board_private.scan_tasks(status);
-CREATE INDEX IF NOT EXISTS idx_scan_tasks_scheduled_at ON job_board_private.scan_tasks(scheduled_at);
-CREATE INDEX IF NOT EXISTS idx_scan_tasks_updated_at ON job_board_private.scan_tasks(updated_at);
+CREATE INDEX IF NOT EXISTS idx_organizations_canadian_status ON job_board_organizations(canadian_status);
+CREATE INDEX IF NOT EXISTS idx_organizations_updated_at ON job_board_organizations(updated_at);
+CREATE INDEX IF NOT EXISTS idx_jobs_status ON job_board_jobs(status);
+CREATE INDEX IF NOT EXISTS idx_jobs_organization_id ON job_board_jobs(organization_id);
+CREATE INDEX IF NOT EXISTS idx_jobs_updated_at ON job_board_jobs(updated_at);
+CREATE INDEX IF NOT EXISTS idx_scan_tasks_status ON job_board_private_scan_tasks(status);
+CREATE INDEX IF NOT EXISTS idx_scan_tasks_scheduled_at ON job_board_private_scan_tasks(scheduled_at);
+CREATE INDEX IF NOT EXISTS idx_scan_tasks_updated_at ON job_board_private_scan_tasks(updated_at);
