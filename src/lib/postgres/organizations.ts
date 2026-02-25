@@ -1,41 +1,30 @@
-import { supabase, supabaseService } from './client'
+import { db } from './client'
+import type { Database } from './schema'
 
-export type Organization = {
-  id: string
-  name: string
-  city: string | null
-  province: string | null
-  country: string | null
-  address: string | null
-  description: string | null
-  website: string | null
-  careers_page: string | null
-  canadian_status: 'unscanned' | 'canadian' | 'not_canadian' | 'no_address'
-  created_at: string
-  updated_at: string
-}
+export type Organization = Database['job_board_organizations']['Insert']['id'] extends `${infer R}`
+  ? Omit<Database['job_board_organizations']['Insert'], 'id'>
+  : never
 
-export type OrgInsert = Omit<Organization, 'id' | 'created_at' | 'updated_at'>
+export async function createOrganization(data: Omit<Organization, 'id' | 'created_at' | 'updated_at'>): Promise<Organization> {
+  const result = await db
+    .insertInto('job_board_organizations')
+    .values({
+      ...data,
+      created_at: new Date(),
+      updated_at: new Date(),
+    })
+    .returningAll()
+    .executeTakeFirstOrThrow()
 
-export async function createOrganization(data: OrgInsert): Promise<Organization> {
-  const { data: org, error } = await supabaseService
-    .from('job_board.organizations')
-    .insert(data)
-    .select()
-    .single()
-
-  if (error) throw error
-  return org
+  return result as unknown as Organization
 }
 
 export async function getOrganizationByWebsite(website: string): Promise<Organization | null> {
-  const { data, error } = await supabase
-    .from('job_board.organizations')
-    .select()
-    .eq('website', website)
-    .single()
+  const result = await db
+    .selectFrom('job_board_organizations')
+    .selectAll()
+    .where('website', '=', website)
+    .executeTakeFirst()
 
-  if (error?.code === 'PGRST116') return null
-  if (error) throw error
-  return data
+  return result as unknown as Organization | null
 }
